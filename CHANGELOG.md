@@ -1,3 +1,10 @@
+# [1.1.0](https://github.com/m6-o4/payload-template-pg/compare/v1.0.0...v1.1.0) (2026-09-25)
+
+
+### Features
+
+* **db:** add initial Postgres migration and disable schema push ([6bb692b](https://github.com/m6-o4/payload-template-pg/commit/6bb692b14c1e6dcbd0f616524ee4a527ef07b38f))
+
 # 1.0.0 (2026-09-25)
 
 
