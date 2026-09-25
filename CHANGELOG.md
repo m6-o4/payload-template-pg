@@ -1,3 +1,17 @@
+# 1.0.0 (2026-09-25)
+
+
+### Code Refactoring
+
+* **db:** migrate from MongoDB to Postgres adapter ([608f9fc](https://github.com/m6-o4/payload-template-pg/commit/608f9fc53b2d8532e90a556ec735cba65d391eb6))
+
+
+### BREAKING CHANGES
+
+* **db:** The database backend changes from MongoDB to Postgres.
+Document IDs are now numeric instead of string, requiring a data migration
+and updates to any code that relies on string IDs.
+
 # [2.1.0](https://github.com/m6-o4/payload-template/compare/v2.0.1...v2.1.0) (2026-08-10)
 
 ### Features
