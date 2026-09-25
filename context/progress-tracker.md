@@ -21,4 +21,18 @@ every feature is finished.
 
 ## Log
 
-_(No entries yet.)_
+### [2026-09-25] — Postgres database migration
+
+- **What was built**: Switched the Payload CMS database adapter from MongoDB to
+  `@payloadcms/db-postgres`, generated the initial Postgres migration under
+  `src/migrations/`, and configured migration handling (`push: false`,
+  `migrationDir: ./src/migrations`). CI now applies migrations before building the
+  image.
+- **Files touched**: `src/payload.config.ts`, `src/migrations/`,
+  `src/payload/blocks/archive/component.tsx`, `.github/workflows/push-to-ghcr.yml`,
+  `README.md`, `.env.example`
+- **Notes**: Postgres IDs are numeric, so relationship values are typed
+  `number | Media`; narrow on the populated object (`typeof value === "object"`)
+  rather than `"string"`. Existing MongoDB data is not migrated automatically.
+  `next build` prerenders routes, so migrations must run before the build.
+
