@@ -20,6 +20,21 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v5
 
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      - name: Apply Database Migrations
+        run: |
+          corepack enable pnpm
+          pnpm i --frozen-lockfile
+          pnpm payload migrate
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          PAYLOAD_SECRET: ${{ secrets.PAYLOAD_SECRET }}
+          NEXT_PUBLIC_SERVER_URL: ${{ secrets.NEXT_PUBLIC_SERVER_URL }}
+
       - name: Derive Image Name
         id: image
         run: |

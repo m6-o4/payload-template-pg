@@ -8,7 +8,7 @@ starting from scratch — auth, CMS, storage, and UI conventions are already wir
 
 - **Framework**: [Next.js](https://nextjs.org) 16 (App Router)
 - **CMS**: [Payload CMS](https://payloadcms.com) 3
-- **Database**: MongoDB
+- **Database**: PostgreSQL (via `@payloadcms/db-postgres`)
 - **Auth**: [Clerk](https://clerk.com)
 - **Storage**: S3-compatible object storage (media uploads)
 - **Email**: [Resend](https://resend.com)
@@ -16,9 +16,9 @@ starting from scratch — auth, CMS, storage, and UI conventions are already wir
 
 ## Requirements
 
-- Node.js `^18.20.2` or `>=20.9.0`
-- pnpm `^9`, `^10`, or `^11`
-- A MongoDB connection string (local, Docker, or Atlas)
+- Node.js `^22.14.0` or `>=24.10.0`
+- pnpm `^9`, `^10`, `^11`, or `^12`
+- A PostgreSQL connection string (local, Docker, or hosted)
 
 ## Setup
 
@@ -36,7 +36,7 @@ starting from scratch — auth, CMS, storage, and UI conventions are already wir
 
    | Variable | Purpose |
    | --- | --- |
-   | `DATABASE_URL` | MongoDB connection string |
+   | `DATABASE_URL` | PostgreSQL connection string (`postgres://user:pass@host:5432/db`) |
    | `PAYLOAD_SECRET` | Payload's signing secret |
    | `PREVIEW_SECRET` | Secret used for live preview links |
    | `CRON_SECRET` | Secret for authenticating scheduled/cron jobs |
@@ -56,13 +56,43 @@ starting from scratch — auth, CMS, storage, and UI conventions are already wir
 4. Open `http://localhost:3000`. Follow the on-screen instructions to log in via
    Clerk and complete first-run setup.
 
-### Docker (optional)
+### Local PostgreSQL (optional)
 
-To run MongoDB locally via Docker instead of a standalone instance or Atlas:
+`docker-compose.yml` deploys the application itself and expects an external
+PostgreSQL instance. For local development you can run PostgreSQL with Docker:
 
-1. Set `DATABASE_URL` in `.env` to `mongodb://127.0.0.1/<dbname>`.
-2. Match `<dbname>` in `docker-compose.yml`.
-3. Run `docker-compose up` (add `-d` to run in the background).
+1. Start a PostgreSQL container:
+
+   ```bash
+   docker run --name payload-postgres -e POSTGRES_PASSWORD=postgres -p 5432:5432 -d postgres:17
+   ```
+
+2. Set `DATABASE_URL` in `.env`, e.g.
+   `postgres://postgres:postgres@127.0.0.1:5432/payload`.
+3. Apply the schema: `pnpm payload migrate`.
+
+### Database Migrations
+
+The Postgres adapter runs with `push: false`, so schema changes are applied through
+migrations rather than automatic dev-time pushes. After changing any collection,
+global, or field config:
+
+1. Generate a migration and review it:
+
+   ```bash
+   pnpm payload migrate:create
+   ```
+
+2. Commit the new files under `src/migrations/`.
+3. Apply pending migrations to the database:
+
+   ```bash
+   pnpm payload migrate
+   ```
+
+CI applies migrations before building the image
+(`.github/workflows/push-to-ghcr.yml`), and the build prerenders routes against the
+database, so migrations must be committed before the workflow runs.
 
 ## Available Scripts
 
@@ -75,9 +105,13 @@ To run MongoDB locally via Docker instead of a standalone instance or Atlas:
 | `pnpm payload` | Run the Payload CLI |
 | `pnpm generate:types` | Regenerate Payload's TypeScript types from the config |
 | `pnpm generate:importmap` | Regenerate Payload's admin import map |
+| `pnpm payload migrate:create` | Generate a migration after config changes |
+| `pnpm payload migrate` | Apply pending migrations |
+| `pnpm payload migrate:status` | Show applied and pending migrations |
 
 Run `pnpm generate:types` after changing any collection, global, or field config so
-generated types stay in sync.
+generated types stay in sync, and `pnpm payload migrate:create` so the database schema
+stays in sync with the config.
 
 ## Project Structure
 
@@ -85,7 +119,8 @@ generated types stay in sync.
 - `context/` — living documentation (architecture, UI tokens/rules, code standards,
   build plan, progress tracker) used to keep new projects built from this template
   consistent
-- `docker-compose.yml` — local MongoDB for Docker-based development
+- `docker-compose.yml` — production compose for the app (expects an external
+  PostgreSQL instance)
 
 ## Collections
 
