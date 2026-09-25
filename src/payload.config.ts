@@ -54,7 +54,11 @@ export default buildConfig({
 		user: Users.slug,
 	},
 	collections: collections,
-	db: postgresAdapter({ pool: { connectionString: databaseURL } }),
+	db: postgresAdapter({
+		pool: { connectionString: databaseURL },
+		push: false,
+		migrationDir: "./src/migrations",
+	}),
 	editor: lexical,
 	email: resend,
 	globals: globals,
