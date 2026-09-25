@@ -1,7 +1,7 @@
 services:
-  payload-template:
+  payload-template-pg:
     image: ghcr.io/m6o4/payload-template:latest
-    container_name: payload-template
+    container_name: payload-template-pg
     restart: unless-stopped
     networks:
       - m6o4-prd-network
@@ -9,10 +9,10 @@ services:
       - stack.env
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.payload-template.rule=Host(`payload-template.s3.co.ke`)"
-      - "traefik.http.routers.payload-template.entrypoints=websecure"
-      - "traefik.http.routers.payload-template.tls.certresolver=letsencrypt"
-      - "traefik.http.services.payload-template.loadbalancer.server.port=3000"
+      - "traefik.http.routers.payload-template-pg.rule=Host(`payload-template-pg.s3.co.ke`)"
+      - "traefik.http.routers.payload-template-pg.entrypoints=websecure"
+      - "traefik.http.routers.payload-template-pg.tls.certresolver=letsencrypt"
+      - "traefik.http.services.payload-template-pg.loadbalancer.server.port=3000"
 
 networks:
   m6o4-prd-network:
