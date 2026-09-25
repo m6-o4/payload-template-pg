@@ -3,7 +3,7 @@ import { fileURLToPath } from "url";
 import { globals } from "@/payload/blocks/globals";
 import { collections } from "@/payload/collections";
 import { Users } from "@/payload/collections/users/schema";
-import { mongooseAdapter } from "@payloadcms/db-mongodb";
+import { postgresAdapter } from "@payloadcms/db-postgres";
 import { lexical } from "@/payload/fields/lexical";
 import { resend } from "@/payload/fields/resend";
 import { plugins } from "@/payload/plugins/schema";
@@ -54,7 +54,7 @@ export default buildConfig({
 		user: Users.slug,
 	},
 	collections: collections,
-	db: mongooseAdapter({ url: databaseURL }),
+	db: postgresAdapter({ pool: { connectionString: databaseURL } }),
 	editor: lexical,
 	email: resend,
 	globals: globals,
