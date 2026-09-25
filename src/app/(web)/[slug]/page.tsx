@@ -9,29 +9,39 @@ import { getPayload } from "payload";
 import { cache } from "react";
 
 const generateStaticParams = async () => {
-	const payload = await getPayload({ config: config });
+	try {
+		const payload = await getPayload({ config: config });
 
-	// fetch all published pages.
-	const pages = await payload.find({
-		collection: "pages",
-		draft: false, // only consider published pages for ssg.
-		limit: 1000,
-		overrideAccess: false,
-		pagination: false,
-		select: { slug: true },
-	});
-
-	// filter out the 'home' slug and map the remaining documents to the required format.
-	const params = pages.docs
-		?.filter((doc) => {
-			return doc.slug !== "home";
-		})
-		.map(({ slug }) => {
-			return { slug };
+		// fetch all published pages.
+		const pages = await payload.find({
+			collection: "pages",
+			draft: false, // only consider published pages for ssg.
+			limit: 1000,
+			overrideAccess: false,
+			pagination: false,
+			select: { slug: true },
 		});
 
-	// return the array of slugs for next.js ssg.
-	return params || [];
+		// filter out the 'home' slug and map the remaining documents to the required format.
+		const params = pages.docs
+			?.filter((doc) => {
+				return doc.slug !== "home";
+			})
+			.map(({ slug }) => {
+				return { slug };
+			});
+
+		// return the array of slugs for next.js ssg.
+		return params || [];
+	} catch (error) {
+		console.warn(
+			"generateStaticParams: database unavailable, skipping static page generation.",
+			error,
+		);
+
+		// fall back to on-demand rendering when the database is unreachable at build time.
+		return [];
+	}
 };
 
 type Args = { params: Promise<{ slug?: string }> };
