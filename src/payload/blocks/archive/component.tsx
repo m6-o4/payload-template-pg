@@ -78,11 +78,13 @@ const ArchiveBlock = async (props: ArchiveBlockProps) => {
 						{posts.map((post) => {
 							const image = post.meta?.image;
 
-							const imageSrc =
-								typeof image === "string" ? image : (image?.url ?? "/abstarct-image.jpg");
+							// only a populated media object has url and alt; an unpopulated
+							// relationship is a numeric id, so fall back to the default image.
+							const populatedImage = image && typeof image === "object" ? image : null;
 
-							const imageAlt =
-								typeof image === "string" ? "Post image" : (image?.alt ?? "Post image");
+							const imageSrc = populatedImage?.url ?? "/abstarct-image.jpg";
+
+							const imageAlt = populatedImage?.alt ?? "Post image";
 
 							return (
 								<Link key={post.id} href={`/posts/${post.slug}`}>
